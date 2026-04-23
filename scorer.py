@@ -12,8 +12,8 @@ QUESTIONS = [
     "Marketingová databáze",
     "Email marketing a automatizace",
     "Personalizace",
-    "Marketingové nástroje (interní pohled)",
-    "Hlavní cíl a výzva",
+    "Zákaznická data — propojení a objem",
+    "Emailová automatizace a metriky",
 ]
 
 TIER_DESCRIPTIONS = {
@@ -62,8 +62,16 @@ def _build_answers_block(answers: list[str]) -> str:
 SCORE_PROMPT = """\
 You are a senior data-driven marketing consultant at ePACE.
 Your task: evaluate a company's digital marketing maturity based on two inputs:
-1. Automated tech stack scan of their website (factual, no inference)
+1. Automated tech stack scan of their website (factual, no inference beyond what was detected)
 2. Five free-text answers from the company representative
+
+The scan covers what is visible in HTML source (ESP tools, analytics, CMP, reco engines, ad pixels).
+The answers fill in what the scan cannot see:
+  Q1: database size & collection method → Consent & Capture chapter signal
+  Q2: email automation scope (welcome, flows) → Email & Communication chapter
+  Q3: personalization of content/offers → Web Personalization chapter
+  Q4: data unification — is customer data in one system or siloed? → CDP readiness signal
+  Q5: email behavioral triggers & metrics (open rate, abandoned cart, win-back) → Timing chapter
 
 Assign ONE tier:
   Tier I  (0–25):  Digital Infant  — minimal tech, no systematic data collection, manual comms
