@@ -1,8 +1,8 @@
 # DMT Auto — Project Overview & Working Document
 
-> **Status:** MVP live on GitHub Pages  
-> **Last updated:** 2026-04-23  
-> **Repo:** [domid-epace/epace-dmt-auto](https://github.com/domid-epace/epace-dmt-auto)  
+> **Status:** MVP live on GitHub Pages — API key baked in, no user prompt
+> **Last updated:** 2026-04-23
+> **Repo:** [domid-epace/epace-dmt-auto](https://github.com/domid-epace/epace-dmt-auto)
 > **Landing page:** [domid-epace/dashboards](https://github.com/domid-epace/dashboards) → `dmt-landing-page.html`
 
 ---
@@ -65,10 +65,63 @@ dashboard.html                  (domid-epace/epace-dmt-auto)
 
 ```javascript
 const DMT_DASHBOARD_URL  = 'https://domid-epace.github.io/epace-dmt-auto/dashboard.html';
-const ANTHROPIC_API_KEY  = 'sk-ant-...';   // ← set here
+const ANTHROPIC_API_KEY  = '__DMT_API_KEY__';  // placeholder — injected at deploy time
 const ANTHROPIC_MODEL    = 'claude-sonnet-4-6';
 const CORS_PROXY         = 'https://corsproxy.io/?';
 ```
+
+### Base64 encoding — UTF-8 fix
+
+`btoa()` only handles Latin1. Czech characters in Claude's response caused a crash.
+Fixed with:
+
+```javascript
+// Encode (landing page)
+const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(result))));
+
+// Decode (dashboard)
+JSON.parse(decodeURIComponent(escape(atob(raw))))
+```
+
+---
+
+## API Key — Current Situation
+
+### How it works (live)
+
+The API key is **never committed to git**. It lives in a GitHub Actions secret (`DMT_API_KEY`).
+
+Deployment flow:
+1. Push to `main` triggers `.github/workflows/deploy.yml` in `domid-epace/dashboards`
+2. `sed` replaces `__DMT_API_KEY__` with the secret value in the HTML
+3. `actions/upload-pages-artifact` + `actions/deploy-pages` publishes via GitHub Pages API (no git commit → bypasses push protection scanner)
+4. Users get the page with the real key already baked in — no prompt
+
+To update the key:
+```
+curl -X PUT \
+  -H "Authorization: token <domid-epace-token>" \
+  -H "Accept: application/vnd.github+json" \
+  "https://api.github.com/repos/domid-epace/dashboards/actions/secrets/DMT_API_KEY" \
+  -d '{"encrypted_value":"<encrypted>","key_id":"<id>"}'
+```
+Or update via GitHub UI: Settings → Secrets and variables → Actions → `DMT_API_KEY`.
+Then run the workflow manually (Actions → Deploy to GitHub Pages → Run workflow).
+
+### Production path options
+
+| Option | Effort | When |
+|---|---|---|
+| **Cloudflare Worker proxy** | Low (1–2h) | Before going public on epace.cz |
+| **Flask backend on Render/Railway** | Medium (half day) | If lead persistence + email delivery needed |
+
+**Cloudflare Worker approach (recommended for public launch):**
+```
+browser → POST https://dmt-proxy.epace.workers.dev/assess → Worker → Anthropic API
+```
+- Key lives in Cloudflare env vars (not in git)
+- CORS enabled, no proxy issues
+- Free up to 100k requests/day
 
 ---
 
@@ -78,9 +131,11 @@ const CORS_PROXY         = 'https://corsproxy.io/?';
 |---|---|---|
 | Q1 | Marketingová databáze | Size + collection method → Consent & Capture signal |
 | Q2 | Email marketing a automatizace | Flows, welcome, cart abandonment → Email chapter |
-| Q3 | Personalizace | Segments, dynamic content, recommendations |
-| Q4 | Marketingové nástroje (interní) | Internal tools not visible from HTML scan |
-| Q5 | Hlavní cíl a výzva | Business context → calibrates scoring + feeds ePACE conversation |
+| Q3 | Personalizace | Segments, dynamic content, recommendations → Web Personalization chapter |
+| Q4 | Zákaznická data — propojení a objem | Data unification — siloed or unified? → CDP readiness signal |
+| Q5 | Emailová automatizace a metriky | Behavioral triggers + open rate metrics → Timing chapter |
+
+Q4 and Q5 replaced original "marketing tools" and "goal/challenge" questions — the HTML scan already covers tools, and CDP interest is assumed context.
 
 ---
 
@@ -119,41 +174,12 @@ Endpoint: `POST /api/assess` — body: `{ url, answers[5], email, name?, competi
 
 ---
 
-## API Key — Current Situation & Production Path
-
-### MVP (current)
-The API key **cannot** be committed to a public GitHub repo — GitHub's secret scanning blocks pushes to all branches including `gh-pages`. The current approach:
-
-- `ANTHROPIC_API_KEY = ''` in the source code
-- `getApiKey()` JS function: if empty, prompts the user once and stores in `localStorage`
-- **For internal use:** share the key with ePACE consultants. They enter it once per browser.
-
-### Production path options
-
-| Option | Effort | When |
-|---|---|---|
-| **Cloudflare Worker proxy** | Low (1–2h) | Before going public on epace.cz |
-| **Flask backend on Render/Railway** | Medium (half day) | If lead persistence + email delivery needed |
-
-**Cloudflare Worker approach (recommended):**
-```
-browser → POST https://dmt-proxy.epace.workers.dev/assess → Worker → Anthropic API
-```
-- Key lives in Cloudflare env vars (not in git)
-- CORS enabled, no proxy issues
-- Free up to 100k requests/day
-- Update `DMT_DASHBOARD_URL` in landing page JS to call the Worker
-
----
-
 ## Open Items / Next Steps
 
-- [ ] **API key — production** — deploy Cloudflare Worker proxy so key is server-side. Update landing page to call Worker instead of Anthropic directly.
+- [ ] **CORS proxy reliability** — `corsproxy.io` is a free public service. Cloudflare Worker would replace this and also solve the key exposure issue.
 - [ ] **Email delivery** — currently results only shown in browser. Should the user receive results by email too?
 - [ ] **Lead persistence** — email + tier not stored in MVP (client-side only). Flask backend (`app.py`) saves to `leads.csv` when deployed.
-- [ ] **CORS proxy reliability** — `corsproxy.io` is a free public service. Cloudflare Worker would replace this.
 - [ ] **Competitor scoring** — competitor URLs are collected but not yet scored. Backend has the plumbing ready.
-- [ ] **Email collection backend** — for live landing page: integrate Formspree / Mailchimp / HubSpot to capture leads server-side.
 - [ ] **Results page: radar chart** — consider adding Chart.js radar across 5 dimensions for visual richness.
 - [ ] **Connect to full DMT** — after Tier II–III result, upsell path to paid ePACE Digital Maturity Assessment (1 499 €).
 - [ ] **Move to epace.cz** — when ready to go public, host under epace.cz domain.
@@ -170,7 +196,7 @@ browser → POST https://dmt-proxy.epace.workers.dev/assess → Worker → Anthr
 | Time | ~45 min/target | ~15 sec |
 | Reliability | Medium (Playwright flaky, email timing) | High (no simulation) |
 | Use case | Deep presales audit (internal) | Public lead gen + quick screening |
-| API key exposure | Server-side (.env) | Client-side JS (MVP) |
+| API key exposure | Server-side (.env) | GitHub Actions secret → baked at deploy |
 
 ---
 
@@ -194,5 +220,6 @@ GitHub repos:
 │   └── scorer.py
 │
 └── domid-epace/dashboards/
-    └── dmt-landing-page.html   ← landing page with DMT Express form
+    ├── .github/workflows/deploy.yml  ← GH Actions: injects key + deploys
+    └── dmt-landing-page.html         ← landing page with DMT Express form
 ```
