@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DMT Express — Výsledek | ePACE</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --accent: #FAD232;
+  --accent-glow: rgba(250,210,50,0.20);
+  --grey-dark: #1E2433;
+  --grey-mid: #2a3040;
+  --grey-card: #222838;
+  --text-on-dark: #E8ECF4;
+  --text-muted: #9AA3B5;
+  --border-dark: rgba(255,255,255,0.10);
+  --tier-I:   #f87171;
+  --tier-II:  #fbbf24;
+  --tier-III: #4ade80;
+  --tier-IV:  #60a5fa;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--grey-dark);
+  color: var(--text-on-dark);
+  min-height: 100vh;
+}
+h1,h2,h3,h4 { font-family: 'Poppins', sans-serif; }
+
+/* ── HEADER ── */
+.dash-header {
+  background: rgba(30,36,51,0.97);
+  border-bottom: 1px solid var(--border-dark);
+  padding: 0 2rem;
+  height: 62px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 10;
+}
+.dash-logo { font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 1.3rem; color: var(--text-on-dark); letter-spacing: -0.03em; }
+.dash-logo span { color: var(--accent); }
+.dash-header-right { display: flex; gap: 1rem; align-items: center; }
+.btn-share {
+  background: transparent; border: 1.5px solid var(--border-dark);
+  color: var(--text-muted); font-family: 'Poppins', sans-serif;
+  font-size: 0.82rem; font-weight: 600; padding: 0.45rem 1.1rem;
+  border-radius: 6px; cursor: pointer; transition: all 0.2s;
+}
+.btn-share:hover { border-color: var(--accent); color: var(--accent); }
+.btn-cta {
+  background: var(--accent); color: #1E2433;
+  font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 700;
+  padding: 0.45rem 1.2rem; border-radius: 6px; border: none; cursor: pointer;
+  text-decoration: none; transition: all 0.2s;
+}
+.btn-cta:hover { background: #ffe066; }
+
+/* ── LAYOUT ── */
+.dash-container { max-width: 900px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+
+/* ── TOP BAND ── */
+.dash-top {
+  display: grid; grid-template-columns: 1fr auto; gap: 2rem;
+  align-items: start; margin-bottom: 2rem;
+}
+.dash-meta { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.dash-url { font-size: 0.9rem; color: var(--text-on-dark); font-weight: 500; }
+.dash-date { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+/* ── TIER HERO ── */
+.tier-hero {
+  display: flex; align-items: center; gap: 1.5rem;
+  background: var(--grey-card);
+  border: 2px solid var(--border-dark);
+  border-radius: 16px;
+  padding: 1.75rem 2rem;
+  margin-bottom: 1.5rem;
+  position: relative; overflow: hidden;
+}
+.tier-hero::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--tier-color, var(--accent));
+}
+.tier-numeral {
+  font-family: 'Poppins', sans-serif;
+  font-size: 4rem; font-weight: 800;
+  color: var(--tier-color, var(--accent));
+  line-height: 1; flex-shrink: 0;
+  text-shadow: 0 0 40px var(--tier-glow, var(--accent-glow));
+}
+.tier-info { flex: 1; }
+.tier-label {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.5rem; font-weight: 700;
+  color: var(--text-on-dark); margin-bottom: 0.25rem;
+}
+.tier-sublabel {
+  font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0.5rem;
+}
+.tier-desc {
+  font-size: 0.95rem; color: var(--text-on-dark); line-height: 1.6;
+}
+.tier-score-pill {
+  display: inline-flex; align-items: center;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--border-dark);
+  border-radius: 100px; padding: 0.25rem 0.85rem;
+  font-size: 0.8rem; font-weight: 600; color: var(--text-muted);
+  margin-top: 0.6rem;
+}
+.tier-score-pill strong { color: var(--tier-color, var(--accent)); margin-right: 0.3rem; }
+
+/* ── HEADLINE ── */
+.dash-headline {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.15rem; font-weight: 600;
+  color: var(--text-on-dark);
+  line-height: 1.5;
+  margin-bottom: 1.75rem;
+  padding: 1.25rem 1.5rem;
+  background: rgba(250,210,50,0.06);
+  border: 1px solid rgba(250,210,50,0.18);
+  border-radius: 12px;
+}
+
+/* ── GRID ── */
+.dash-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem; }
+.dash-card {
+  background: var(--grey-card);
+  border: 1px solid var(--border-dark);
+  border-radius: 12px;
+  padding: 1.4rem 1.5rem;
+}
+.dash-card-label {
+  font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.dash-card-label.green { color: #4ade80; }
+.dash-card-label.red   { color: #f87171; }
+.dash-card-label.blue  { color: #60a5fa; }
+.dash-card-label.yellow{ color: var(--accent); }
+
+.dash-list { list-style: none; display: flex; flex-direction: column; gap: 0.65rem; }
+.dash-list li {
+  font-size: 0.9rem; color: var(--text-on-dark); line-height: 1.55;
+  padding-left: 1.1rem; position: relative;
+}
+.dash-list li::before {
+  content: '→';
+  position: absolute; left: 0;
+  font-weight: 700;
+}
+.dash-list.green li::before { color: #4ade80; }
+.dash-list.red   li::before { color: #f87171; }
+
+/* ── NEXT STEP ── */
+.dash-next {
+  background: var(--grey-card);
+  border: 1px solid rgba(250,210,50,0.2);
+  border-radius: 12px; padding: 1.4rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.dash-next p { font-size: 0.97rem; color: var(--text-on-dark); line-height: 1.7; }
+
+/* ── TECH STACK ── */
+.dash-tech { margin-bottom: 1.75rem; }
+.dash-tech-badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+.tech-badge {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border-dark);
+  border-radius: 5px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem; color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ── TIER SCALE BAR ── */
+.tier-scale {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;
+  margin-bottom: 1.75rem;
+}
+.tier-scale-item {
+  background: var(--grey-card); border: 1px solid var(--border-dark);
+  border-radius: 8px; padding: 0.75rem 0.85rem; text-align: center;
+  transition: all 0.2s; position: relative; overflow: hidden;
+}
+.tier-scale-item::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 2px; background: var(--t-color, transparent);
+}
+.tier-scale-item.active {
+  border-color: var(--t-color, var(--accent));
+  background: rgba(255,255,255,0.04);
+}
+.tier-scale-item .t-roman {
+  font-family: 'Poppins', sans-serif; font-size: 1.25rem; font-weight: 800;
+  color: var(--t-color, var(--text-muted));
+}
+.tier-scale-item .t-name {
+  font-size: 0.72rem; color: var(--text-muted); margin-top: 0.15rem;
+  font-weight: 500;
+}
+.tier-scale-item.active .t-roman { color: var(--t-color); }
+.tier-scale-item.active .t-name  { color: var(--text-on-dark); }
+
+/* ── CTA BAND ── */
+.dash-cta-band {
+  background: linear-gradient(135deg, rgba(250,210,50,0.08) 0%, rgba(250,210,50,0.03) 100%);
+  border: 1px solid rgba(250,210,50,0.2);
+  border-radius: 16px; padding: 2rem 2rem;
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 1.5rem; flex-wrap: wrap;
+}
+.dash-cta-band h3 {
+  font-size: 1.1rem; font-weight: 700; color: var(--text-on-dark); margin-bottom: 0.35rem;
+}
+.dash-cta-band p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; max-width: 420px; }
+.btn-cta-large {
+  background: var(--accent); color: #1E2433;
+  font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 700;
+  padding: 0.8rem 1.8rem; border-radius: 8px; border: none; cursor: pointer;
+  text-decoration: none; white-space: nowrap; transition: all 0.2s;
+  display: inline-block;
+}
+.btn-cta-large:hover { background: #ffe066; box-shadow: 0 0 24px var(--accent-glow); }
+
+/* ── FOOTER ── */
+.dash-footer {
+  margin-top: 3rem; padding-top: 1.5rem;
+  border-top: 1px solid var(--border-dark);
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 0.75rem;
+  font-size: 0.78rem; color: var(--text-muted);
+}
+.dash-footer a { color: var(--text-muted); text-decoration: none; }
+.dash-footer a:hover { color: var(--accent); }
+
+/* ── ERROR STATE ── */
+.error-state {
+  text-align: center; padding: 5rem 2rem;
+}
+.error-state h2 { color: var(--text-on-dark); font-size: 1.4rem; margin-bottom: 1rem; }
+.error-state p  { color: var(--text-muted); margin-bottom: 2rem; }
+
+/* ── SHARE TOAST ── */
+.share-toast {
+  position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+  background: var(--grey-mid); border: 1px solid var(--border-dark);
+  border-radius: 8px; padding: 0.7rem 1.5rem;
+  font-size: 0.88rem; color: var(--text-on-dark);
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.share-toast.show { opacity: 1; }
+
+@media (max-width: 640px) {
+  .dash-grid-2    { grid-template-columns: 1fr; }
+  .tier-scale     { grid-template-columns: repeat(2, 1fr); }
+  .dash-top       { grid-template-columns: 1fr; }
+  .dash-cta-band  { flex-direction: column; align-items: flex-start; }
+  .tier-numeral   { font-size: 3rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="dash-header">
+  <div class="dash-logo">e<span>Pace</span> <span style="font-size:0.75rem; font-weight:500; color:var(--text-muted); letter-spacing:0.05em; margin-left:0.5rem;">DMT Express</span></div>
+  <div class="dash-header-right">
+    <button class="btn-share" onclick="copyLink()">Sdílet výsledek</button>
+    <a href="https://epace.com" class="btn-cta">epace.com</a>
+  </div>
+</header>
+
+<!-- MAIN CONTENT (filled by JS) -->
+<div id="dash-main" class="dash-container" style="display:none;"></div>
+
+<!-- ERROR STATE -->
+<div id="dash-error" class="error-state" style="display:none;">
+  <h2>Výsledek nebyl nalezen</h2>
+  <p>Odkaz je neplatný nebo vypršel. Spusťte prosím test znovu.</p>
+  <a href="https://domid-epace.github.io/dashboards/dmt-landing-page.html#dmt-express" class="btn-cta-large">Zpět na test</a>
+</div>
+
+<!-- LOADING -->
+<div id="dash-loading" style="text-align:center; padding:5rem 2rem;">
+  <div style="width:44px;height:44px;border:3px solid rgba(255,255,255,0.1);border-top-color:#FAD232;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 1.5rem;"></div>
+  <p style="color:#9AA3B5;">Načítám výsledek…</p>
+</div>
+
+<!-- SHARE TOAST -->
+<div class="share-toast" id="share-toast">Odkaz zkopírován do schránky</div>
+
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+<script>
+const TIER_CONFIG = {
+  'I':  { color: '#f87171', glow: 'rgba(248,113,113,0.2)', label: 'Digital Infant',  sub: 'Úroveň 1 ze 4', range: '0–25',   desc: 'Základní online přítomnost, data se systematicky nesebírají, komunikace probíhá ad hoc.' },
+  'II': { color: '#fbbf24', glow: 'rgba(251,191,36,0.2)',  label: 'Digital Aware',   sub: 'Úroveň 2 ze 4', range: '26–50',  desc: 'Nástroje existují, ale jsou odpojené nebo nevyužité. Email funguje, personalizace je minimální.' },
+  'III':{ color: '#4ade80', glow: 'rgba(74,222,128,0.2)',  label: 'Digital Active',  sub: 'Úroveň 3 ze 4', range: '51–75',  desc: 'Propojený stack, základní automatizace, data se sbírají systematicky.' },
+  'IV': { color: '#60a5fa', glow: 'rgba(96,165,250,0.2)',  label: 'Digital Mature',  sub: 'Úroveň 4 ze 4', range: '76–100', desc: 'Personalizace ve škále, omnichannel přítomnost, data jako základ rozhodování.' },
+};
+
+function decodeResult() {
+  const params = new URLSearchParams(window.location.search);
+  const raw = params.get('r');
+  if (!raw) return null;
+  try {
+    return JSON.parse(atob(raw));
+  } catch(e) {
+    return null;
+  }
+}
+
+function renderDashboard(data) {
+  const tier = (data.tier || 'II').trim().toUpperCase();
+  const cfg = TIER_CONFIG[tier] || TIER_CONFIG['II'];
+  const score = data.score_estimate || '?';
+  const tools = data.tech_detected || [];
+  const strengths = data.strengths_cs || [];
+  const gaps = data.gaps_cs || [];
+  const url = data.url_scanned || data.url || '';
+  const nextStep = data.next_step_cs || '';
+  const headline = data.headline_cs || '';
+  const now = new Date().toLocaleDateString('cs-CZ', { day:'numeric', month:'long', year:'numeric' });
+
+  // Set tier CSS variables
+  document.documentElement.style.setProperty('--tier-color', cfg.color);
+  document.documentElement.style.setProperty('--tier-glow', cfg.glow);
+
+  // Tier scale
+  const scaleHTML = Object.entries(TIER_CONFIG).map(([t, c]) => `
+    <div class="tier-scale-item ${t === tier ? 'active' : ''}" style="--t-color:${c.color}">
+      <div class="t-roman">${t}</div>
+      <div class="t-name">${c.label}</div>
+    </div>`).join('');
+
+  // Tech badges
+  const techHTML = tools.length
+    ? `<div class="dash-tech">
+        <div class="dash-card-label yellow">Detekované nástroje na webu</div>
+        <div class="dash-tech-badges">${tools.map(t => `<span class="tech-badge">${t}</span>`).join('')}</div>
+       </div>`
+    : '';
+
+  const html = `
+    <!-- Top meta -->
+    <div class="dash-top">
+      <div>
+        <div class="dash-meta">Digital Maturity Test — Express result</div>
+        ${url ? `<div class="dash-url">${url}</div>` : ''}
+        <div class="dash-date">${now}</div>
+      </div>
+    </div>
+
+    <!-- Tier scale bar -->
+    <div class="tier-scale">${scaleHTML}</div>
+
+    <!-- Tier hero card -->
+    <div class="tier-hero" style="--tier-color:${cfg.color}; --tier-glow:${cfg.glow};">
+      <div class="tier-numeral">${tier}</div>
+      <div class="tier-info">
+        <div class="tier-label">${cfg.label}</div>
+        <div class="tier-sublabel">${cfg.sub} · skóre ${score}/100</div>
+        <div class="tier-desc">${cfg.desc}</div>
+        <div class="tier-score-pill"><strong>${score}</strong>/ 100</div>
+      </div>
+    </div>
+
+    <!-- Headline -->
+    ${headline ? `<div class="dash-headline">${headline}</div>` : ''}
+
+    <!-- Tech stack -->
+    ${techHTML}
+
+    <!-- Strengths + Gaps -->
+    <div class="dash-grid-2">
+      <div class="dash-card">
+        <div class="dash-card-label green">Silné stránky</div>
+        <ul class="dash-list green">
+          ${strengths.map(s => `<li>${s}</li>`).join('') || '<li>Žádné detekované silné stránky</li>'}
+        </ul>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-label red">Mezery a příležitosti</div>
+        <ul class="dash-list red">
+          ${gaps.map(g => `<li>${g}</li>`).join('') || '<li>Žádné detekované mezery</li>'}
+        </ul>
+      </div>
+    </div>
+
+    <!-- Next step -->
+    ${nextStep ? `
+    <div class="dash-next">
+      <div class="dash-card-label blue" style="margin-bottom:0.6rem;">Doporučený next step</div>
+      <p>${nextStep}</p>
+    </div>` : ''}
+
+    <!-- CTA band -->
+    <div class="dash-cta-band">
+      <div>
+        <h3>Chcete jít hlouběji?</h3>
+        <p>Digital Maturity Assessment od ePACE jde výrazně dál — zahrnuje audit dat, konkurenční srovnání a konkrétní roadmapu. Od 1 499 €.</p>
+      </div>
+      <a href="https://domid-epace.github.io/dashboards/dmt-landing-page.html#footer" class="btn-cta-large">Mluvit s konzultantem →</a>
+    </div>
+
+    <!-- Footer -->
+    <div class="dash-footer">
+      <div>ePACE s.r.o. · <a href="https://epace.com">epace.com</a> · <a href="mailto:info@epace.com">info@epace.com</a></div>
+      <div>Výsledek vygenerován automaticky nástrojem DMT Express · <a href="https://domid-epace.github.io/dashboards/dmt-landing-page.html#dmt-express">Spustit znovu</a></div>
+    </div>
+  `;
+
+  document.getElementById('dash-main').innerHTML = html;
+  document.getElementById('dash-loading').style.display = 'none';
+  document.getElementById('dash-main').style.display = 'block';
+  document.title = `Tier ${tier} — ${cfg.label} | DMT Express ePACE`;
+}
+
+function copyLink() {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    const toast = document.getElementById('share-toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  });
+}
+
+// Init
+(function() {
+  const data = decodeResult();
+  if (!data) {
+    document.getElementById('dash-loading').style.display = 'none';
+    document.getElementById('dash-error').style.display = 'block';
+  } else {
+    renderDashboard(data);
+  }
+})();
+</script>
+</body>
+</html>
