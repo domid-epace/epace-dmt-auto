@@ -311,7 +311,7 @@ function decodeResult() {
   const raw = params.get('r');
   if (!raw) return null;
   try {
-    return JSON.parse(atob(raw));
+    return JSON.parse(decodeURIComponent(escape(atob(raw))));
   } catch(e) {
     return null;
   }
