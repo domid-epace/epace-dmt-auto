@@ -119,17 +119,44 @@ Endpoint: `POST /api/assess` — body: `{ url, answers[5], email, name?, competi
 
 ---
 
+## API Key — Current Situation & Production Path
+
+### MVP (current)
+The API key **cannot** be committed to a public GitHub repo — GitHub's secret scanning blocks pushes to all branches including `gh-pages`. The current approach:
+
+- `ANTHROPIC_API_KEY = ''` in the source code
+- `getApiKey()` JS function: if empty, prompts the user once and stores in `localStorage`
+- **For internal use:** share the key with ePACE consultants. They enter it once per browser.
+
+### Production path options
+
+| Option | Effort | When |
+|---|---|---|
+| **Cloudflare Worker proxy** | Low (1–2h) | Before going public on epace.cz |
+| **Flask backend on Render/Railway** | Medium (half day) | If lead persistence + email delivery needed |
+
+**Cloudflare Worker approach (recommended):**
+```
+browser → POST https://dmt-proxy.epace.workers.dev/assess → Worker → Anthropic API
+```
+- Key lives in Cloudflare env vars (not in git)
+- CORS enabled, no proxy issues
+- Free up to 100k requests/day
+- Update `DMT_DASHBOARD_URL` in landing page JS to call the Worker
+
+---
+
 ## Open Items / Next Steps
 
+- [ ] **API key — production** — deploy Cloudflare Worker proxy so key is server-side. Update landing page to call Worker instead of Anthropic directly.
 - [ ] **Email delivery** — currently results only shown in browser. Should the user receive results by email too?
-- [ ] **Lead persistence** — email + tier currently not stored (client-side only). Flask backend saves to `leads.csv`. Deploy backend to capture leads.
-- [ ] **CORS proxy reliability** — `corsproxy.io` is a free public service. Replace with own Cloudflare Worker or deploy Flask backend.
-- [ ] **API key exposure** — key is in client-side JS (visible in page source). Acceptable for internal presales use; replace with backend proxy for public-facing tool.
-- [ ] **Competitor scoring** — competitor URLs are collected but not yet scored in the MVP. Backend has the plumbing ready.
-- [ ] **Email collection backend** — for live landing page: integrate Formspree / Mailchimp / HubSpot form to capture leads server-side.
-- [ ] **Design: results page** — consider adding a radar-style chart (Chart.js) across 5 dimensions.
-- [ ] **Connect to full DMT** — after Tier II–III result, upsell path to paid ePACE Digital Maturity Assessment.
-- [ ] **Move to epace.cz** — when ready to go public, host landing page under epace.cz domain.
+- [ ] **Lead persistence** — email + tier not stored in MVP (client-side only). Flask backend (`app.py`) saves to `leads.csv` when deployed.
+- [ ] **CORS proxy reliability** — `corsproxy.io` is a free public service. Cloudflare Worker would replace this.
+- [ ] **Competitor scoring** — competitor URLs are collected but not yet scored. Backend has the plumbing ready.
+- [ ] **Email collection backend** — for live landing page: integrate Formspree / Mailchimp / HubSpot to capture leads server-side.
+- [ ] **Results page: radar chart** — consider adding Chart.js radar across 5 dimensions for visual richness.
+- [ ] **Connect to full DMT** — after Tier II–III result, upsell path to paid ePACE Digital Maturity Assessment (1 499 €).
+- [ ] **Move to epace.cz** — when ready to go public, host under epace.cz domain.
 
 ---
 
