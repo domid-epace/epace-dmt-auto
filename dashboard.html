@@ -452,6 +452,7 @@ function renderDashboard(data) {
                 ? c.tools.map(t => `<span class="tech-badge">${t}</span>`).join('')
                 : '<span style="font-size:0.8rem;color:var(--text-muted);">Tech scan nedostupný</span>'}
             </div>
+            ${c.scan_note ? `<div style="font-size:0.75rem;color:#f87171;margin-top:0.4rem;">⚠ Tech scan nedostupný — ${c.scan_note}</div>` : ''}
             ${c.summary_cs ? `<div style="font-size:0.82rem;color:var(--text-on-dark);line-height:1.6;margin-top:0.6rem;">${c.summary_cs}</div>` : ''}
           </div>`;
         }).join('')}
