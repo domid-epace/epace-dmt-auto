@@ -243,16 +243,32 @@ function dimColor(s) {
   return '#f87171';
 }
 
-function decodeResult() {
+async function decompressFromB64(b64) {
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  const ds = new DecompressionStream('deflate-raw');
+  const w = ds.writable.getWriter();
+  w.write(arr); w.close();
+  return new TextDecoder().decode(await new Response(ds.readable).arrayBuffer());
+}
+
+async function decodeResult() {
   // 1. Fresh result from same-tab navigation
   try {
     const stored = sessionStorage.getItem('dmt_result');
     if (stored) return JSON.parse(stored);
   } catch(e) {}
-  // 2. Shared link via ?r= URL param
-  const raw = new URLSearchParams(window.location.search).get('r');
-  if (!raw) return null;
-  try { return JSON.parse(decodeURIComponent(escape(atob(raw)))); } catch(e) { return null; }
+  const params = new URLSearchParams(window.location.search);
+  // 2. ?r2= compressed (new format)
+  const r2 = params.get('r2');
+  if (r2) {
+    try { return JSON.parse(await decompressFromB64(decodeURIComponent(r2))); } catch(e) {}
+  }
+  // 3. ?r= legacy uncompressed
+  const r = params.get('r');
+  if (!r) return null;
+  try { return JSON.parse(decodeURIComponent(escape(atob(r)))); } catch(e) { return null; }
 }
 
 function renderLog(data) {
@@ -411,8 +427,8 @@ function renderLog(data) {
   document.title = `Tier ${tier} — Detail | DMT Express ePACE`;
 }
 
-(function() {
-  const data = decodeResult();
+(async function() {
+  const data = await decodeResult();
   if (!data) {
     document.getElementById('log-loading').style.display = 'none';
     document.getElementById('log-error').style.display = 'block';

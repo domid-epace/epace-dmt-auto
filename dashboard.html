@@ -356,16 +356,43 @@ const TIER_CONFIG = {
   'IV': { color: '#60a5fa', glow: 'rgba(96,165,250,0.2)',  label: 'Digital Mature',  sub: 'Úroveň 4 ze 4', range: '76–100', desc: 'Personalizace ve škále, omnichannel přítomnost, data jako základ rozhodování.' },
 };
 
-function decodeResult() {
+async function compressToB64(str) {
+  const bytes = new TextEncoder().encode(str);
+  const cs = new CompressionStream('deflate-raw');
+  const w = cs.writable.getWriter();
+  w.write(bytes); w.close();
+  const buf = await new Response(cs.readable).arrayBuffer();
+  const arr = new Uint8Array(buf);
+  let bin = ''; for (let i = 0; i < arr.length; i++) bin += String.fromCharCode(arr[i]);
+  return btoa(bin);
+}
+
+async function decompressFromB64(b64) {
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  const ds = new DecompressionStream('deflate-raw');
+  const w = ds.writable.getWriter();
+  w.write(arr); w.close();
+  return new TextDecoder().decode(await new Response(ds.readable).arrayBuffer());
+}
+
+async function decodeResult() {
   // 1. Fresh result from same-tab form submission
   try {
     const stored = sessionStorage.getItem('dmt_result');
     if (stored) return JSON.parse(stored);
   } catch(e) {}
-  // 2. Shared link via ?r= URL param
-  const raw = new URLSearchParams(window.location.search).get('r');
-  if (!raw) return null;
-  try { return JSON.parse(decodeURIComponent(escape(atob(raw)))); } catch(e) { return null; }
+  const params = new URLSearchParams(window.location.search);
+  // 2. ?r2= compressed (new format)
+  const r2 = params.get('r2');
+  if (r2) {
+    try { return JSON.parse(await decompressFromB64(decodeURIComponent(r2))); } catch(e) {}
+  }
+  // 3. ?r= legacy uncompressed (backward compat)
+  const r = params.get('r');
+  if (!r) return null;
+  try { return JSON.parse(decodeURIComponent(escape(atob(r)))); } catch(e) { return null; }
 }
 
 const DIMENSION_LABELS = {
@@ -538,33 +565,32 @@ function renderDashboard(data) {
   document.title = `Tier ${tier} — ${cfg.label} | DMT Express ePACE`;
 }
 
-function copyLink() {
-  const data = decodeResult();
+async function copyLink() {
+  const data = await decodeResult();
   if (!data) return;
-  // Strip log-only fields (reasoning_en, dimension why) and trim lists to keep URL short
   const dims = {};
   for (const [k, v] of Object.entries(data.dimensions || {})) {
     dims[k] = { score: v.score, summary: v.summary };
   }
   const slim = {
-    tier:            data.tier,
-    tier_label:      data.tier_label,
-    tier_number:     data.tier_number,
-    score_estimate:  data.score_estimate,
-    headline_cs:     data.headline_cs,
-    dimensions:      dims,
-    strengths_cs:    data.strengths_cs,
-    opportunities_cs:data.opportunities_cs,
-    next_step_cs:    data.next_step_cs,
-    url_scanned:     data.url_scanned,
-    tech_detected:   (data.tech_detected || []).slice(0, 15),
-    competitors:     (data.competitors || []).map(({ url, tier, summary_cs, scan_note, tools }) => ({
+    tier:             data.tier,
+    tier_label:       data.tier_label,
+    tier_number:      data.tier_number,
+    score_estimate:   data.score_estimate,
+    headline_cs:      data.headline_cs,
+    dimensions:       dims,
+    strengths_cs:     data.strengths_cs,
+    opportunities_cs: data.opportunities_cs,
+    next_step_cs:     data.next_step_cs,
+    url_scanned:      data.url_scanned,
+    tech_detected:    (data.tech_detected || []).slice(0, 15),
+    competitors:      (data.competitors || []).map(({ url, tier, summary_cs, scan_note, tools }) => ({
       url, tier, summary_cs, scan_note: scan_note || undefined,
       tools: (tools || []).slice(0, 8),
     })),
   };
-  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(slim))));
-  const shareUrl = window.location.origin + window.location.pathname + '?r=' + encodeURIComponent(encoded);
+  const compressed = await compressToB64(JSON.stringify(slim));
+  const shareUrl = window.location.origin + window.location.pathname + '?r2=' + encodeURIComponent(compressed);
   navigator.clipboard.writeText(shareUrl).then(() => {
     const toast = document.getElementById('share-toast');
     toast.classList.add('show');
@@ -573,8 +599,8 @@ function copyLink() {
 }
 
 // Init
-(function() {
-  const data = decodeResult();
+(async function() {
+  const data = await decodeResult();
   if (!data) {
     document.getElementById('dash-loading').style.display = 'none';
     document.getElementById('dash-error').style.display = 'block';
