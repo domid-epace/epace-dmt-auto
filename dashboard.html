@@ -449,8 +449,9 @@ function renderDashboard(data) {
             <div class="dash-tech-badges" style="margin-top:0.5rem;">
               ${(c.tools || []).length
                 ? c.tools.map(t => `<span class="tech-badge">${t}</span>`).join('')
-                : '<span style="font-size:0.8rem;color:var(--text-muted);">Žádné nástroje nebyly detekovány</span>'}
+                : '<span style="font-size:0.8rem;color:var(--text-muted);">Tech scan nedostupný</span>'}
             </div>
+            ${c.summary_cs ? `<div style="font-size:0.82rem;color:var(--text-on-dark);line-height:1.6;margin-top:0.6rem;">${c.summary_cs}</div>` : ''}
           </div>`;
         }).join('')}
     </div>` : '';
