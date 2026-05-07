@@ -177,6 +177,51 @@ h1,h2,h3,h4 { font-family: 'Poppins', sans-serif; }
   font-family: 'DM Sans', sans-serif;
 }
 
+/* ── DIMENSION SCORES ── */
+.dash-dimensions {
+  background: var(--grey-card);
+  border: 1px solid var(--border-dark);
+  border-radius: 12px;
+  padding: 1.4rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.dim-row {
+  display: grid;
+  grid-template-columns: 11rem 1fr 2.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.dim-row:last-child { margin-bottom: 0; }
+.dim-name {
+  font-size: 0.82rem; font-weight: 600;
+  color: var(--text-on-dark);
+  white-space: nowrap;
+}
+.dim-bar-wrap {
+  background: rgba(255,255,255,0.06);
+  border-radius: 100px;
+  height: 6px;
+  overflow: hidden;
+}
+.dim-bar-fill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.6s ease;
+}
+.dim-score {
+  font-size: 0.8rem; font-weight: 700;
+  color: var(--text-muted);
+  text-align: right;
+}
+.dim-summary {
+  grid-column: 1 / -1;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-top: -0.5rem;
+}
+
 /* ── TIER SCALE BAR ── */
 .tier-scale {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;
@@ -317,16 +362,31 @@ function decodeResult() {
   }
 }
 
+const DIMENSION_LABELS = {
+  consent_capture:  'Sběr kontaktů',
+  email_automation: 'Email & automatizace',
+  personalization:  'Personalizace',
+  data_integration: 'Data & integrace',
+  measurement:      'Měření & KPI',
+};
+
+function dimColor(score) {
+  if (score >= 70) return '#4ade80';
+  if (score >= 45) return '#fbbf24';
+  return '#f87171';
+}
+
 function renderDashboard(data) {
   const tier = (data.tier || 'II').trim().toUpperCase();
   const cfg = TIER_CONFIG[tier] || TIER_CONFIG['II'];
   const score = data.score_estimate || '?';
   const tools = data.tech_detected || [];
   const strengths = data.strengths_cs || [];
-  const gaps = data.gaps_cs || [];
+  const gaps = data.opportunities_cs || data.gaps_cs || [];
   const url = data.url_scanned || data.url || '';
   const nextStep = data.next_step_cs || '';
   const headline = data.headline_cs || '';
+  const dimensions = data.dimensions || null;
   const now = new Date().toLocaleDateString('cs-CZ', { day:'numeric', month:'long', year:'numeric' });
 
   // Set tier CSS variables
@@ -347,6 +407,27 @@ function renderDashboard(data) {
         <div class="dash-tech-badges">${tools.map(t => `<span class="tech-badge">${t}</span>`).join('')}</div>
        </div>`
     : '';
+
+  // Dimension score bars
+  const dimHTML = dimensions ? `
+    <div class="dash-dimensions">
+      <div class="dash-card-label yellow" style="margin-bottom:1.1rem;">Hodnocení po oblastech</div>
+      ${Object.entries(DIMENSION_LABELS).map(([key, label]) => {
+        const dim = dimensions[key] || {};
+        const s = typeof dim.score === 'number' ? dim.score : null;
+        const summary = dim.summary || '';
+        const barHTML = s !== null ? `
+          <div class="dim-bar-wrap"><div class="dim-bar-fill" style="width:${s}%;background:${dimColor(s)};"></div></div>
+          <div class="dim-score" style="color:${dimColor(s)}">${s}</div>` : `
+          <div class="dim-bar-wrap"><div class="dim-bar-fill" style="width:0%;background:#555;"></div></div>
+          <div class="dim-score">—</div>`;
+        return `<div class="dim-row">
+          <div class="dim-name">${label}</div>
+          ${barHTML}
+          ${summary ? `<div class="dim-summary">${summary}</div>` : ''}
+        </div>`;
+      }).join('')}
+    </div>` : '';
 
   const html = `
     <!-- Top meta -->
@@ -378,7 +459,10 @@ function renderDashboard(data) {
     <!-- Tech stack -->
     ${techHTML}
 
-    <!-- Strengths + Gaps -->
+    <!-- Dimension scores -->
+    ${dimHTML}
+
+    <!-- Strengths + Opportunities -->
     <div class="dash-grid-2">
       <div class="dash-card">
         <div class="dash-card-label green">Silné stránky</div>
@@ -387,9 +471,9 @@ function renderDashboard(data) {
         </ul>
       </div>
       <div class="dash-card">
-        <div class="dash-card-label red">Mezery a příležitosti</div>
+        <div class="dash-card-label red">Příležitosti k růstu</div>
         <ul class="dash-list red">
-          ${gaps.map(g => `<li>${g}</li>`).join('') || '<li>Žádné detekované mezery</li>'}
+          ${gaps.map(g => `<li>${g}</li>`).join('') || '<li>Žádné detekované příležitosti</li>'}
         </ul>
       </div>
     </div>
