@@ -541,10 +541,26 @@ function renderDashboard(data) {
 function copyLink() {
   const data = decodeResult();
   if (!data) return;
-  // Trim for URL: keep full scoring, limit competitor tools to 10 to stay under URL limits
-  const slim = { ...data,
-    competitors: (data.competitors || []).map(({ url, tier, summary_cs, tools }) => ({
-      url, tier, summary_cs, tools: (tools || []).slice(0, 10),
+  // Strip log-only fields (reasoning_en, dimension why) and trim lists to keep URL short
+  const dims = {};
+  for (const [k, v] of Object.entries(data.dimensions || {})) {
+    dims[k] = { score: v.score, summary: v.summary };
+  }
+  const slim = {
+    tier:            data.tier,
+    tier_label:      data.tier_label,
+    tier_number:     data.tier_number,
+    score_estimate:  data.score_estimate,
+    headline_cs:     data.headline_cs,
+    dimensions:      dims,
+    strengths_cs:    data.strengths_cs,
+    opportunities_cs:data.opportunities_cs,
+    next_step_cs:    data.next_step_cs,
+    url_scanned:     data.url_scanned,
+    tech_detected:   (data.tech_detected || []).slice(0, 15),
+    competitors:     (data.competitors || []).map(({ url, tier, summary_cs, scan_note, tools }) => ({
+      url, tier, summary_cs, scan_note: scan_note || undefined,
+      tools: (tools || []).slice(0, 8),
     })),
   };
   const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(slim))));
