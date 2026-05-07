@@ -357,14 +357,15 @@ const TIER_CONFIG = {
 };
 
 function decodeResult() {
-  const params = new URLSearchParams(window.location.search);
-  const raw = params.get('r');
-  if (!raw) return null;
+  // 1. Fresh result from same-tab form submission
   try {
-    return JSON.parse(decodeURIComponent(escape(atob(raw))));
-  } catch(e) {
-    return null;
-  }
+    const stored = sessionStorage.getItem('dmt_result');
+    if (stored) return JSON.parse(stored);
+  } catch(e) {}
+  // 2. Shared link via ?r= URL param
+  const raw = new URLSearchParams(window.location.search).get('r');
+  if (!raw) return null;
+  try { return JSON.parse(decodeURIComponent(escape(atob(raw)))); } catch(e) { return null; }
 }
 
 const DIMENSION_LABELS = {
@@ -537,7 +538,17 @@ function renderDashboard(data) {
 }
 
 function copyLink() {
-  navigator.clipboard.writeText(window.location.href).then(() => {
+  const data = decodeResult();
+  if (!data) return;
+  // Trim for URL: keep full scoring, limit competitor tools to 10 to stay under URL limits
+  const slim = { ...data,
+    competitors: (data.competitors || []).map(({ url, tier, summary_cs, tools }) => ({
+      url, tier, summary_cs, tools: (tools || []).slice(0, 10),
+    })),
+  };
+  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(slim))));
+  const shareUrl = window.location.origin + window.location.pathname + '?r=' + encodeURIComponent(encoded);
+  navigator.clipboard.writeText(shareUrl).then(() => {
     const toast = document.getElementById('share-toast');
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 2500);

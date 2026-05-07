@@ -244,12 +244,15 @@ function dimColor(s) {
 }
 
 function decodeResult() {
-  const params = new URLSearchParams(window.location.search);
-  const raw = params.get('r');
-  if (!raw) return null;
+  // 1. Fresh result from same-tab navigation
   try {
-    return JSON.parse(decodeURIComponent(escape(atob(raw))));
-  } catch(e) { return null; }
+    const stored = sessionStorage.getItem('dmt_result');
+    if (stored) return JSON.parse(stored);
+  } catch(e) {}
+  // 2. Shared link via ?r= URL param
+  const raw = new URLSearchParams(window.location.search).get('r');
+  if (!raw) return null;
+  try { return JSON.parse(decodeURIComponent(escape(atob(raw)))); } catch(e) { return null; }
 }
 
 function renderLog(data) {
