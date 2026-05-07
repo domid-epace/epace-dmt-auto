@@ -439,15 +439,20 @@ function renderDashboard(data) {
   const competitorsHTML = competitors.length ? `
     <div class="dash-competitors">
       <div class="dash-card-label yellow">Konkurence — tech stack</div>
-      ${competitors.map(c => `
-        <div class="comp-item">
-          <div class="comp-url">${c.url}</div>
-          <div class="dash-tech-badges">
-            ${(c.tools || []).length
-              ? c.tools.map(t => `<span class="tech-badge">${t}</span>`).join('')
-              : '<span style="font-size:0.8rem;color:var(--text-muted);">Žádné nástroje nebyly detekovány</span>'}
-          </div>
-        </div>`).join('')}
+      ${competitors.map(c => {
+          const tc = TIER_CONFIG[c.tier] || TIER_CONFIG['I'];
+          return `<div class="comp-item">
+            <div class="comp-url" style="display:flex;align-items:center;gap:0.6rem;">
+              <span style="font-family:'Poppins',sans-serif;font-weight:800;font-size:1rem;color:${tc.color};">${c.tier || '?'}</span>
+              <span>${c.url}</span>
+            </div>
+            <div class="dash-tech-badges" style="margin-top:0.5rem;">
+              ${(c.tools || []).length
+                ? c.tools.map(t => `<span class="tech-badge">${t}</span>`).join('')
+                : '<span style="font-size:0.8rem;color:var(--text-muted);">Žádné nástroje nebyly detekovány</span>'}
+            </div>
+          </div>`;
+        }).join('')}
     </div>` : '';
 
   const html = `

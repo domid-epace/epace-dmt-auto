@@ -273,6 +273,7 @@ function renderLog(data) {
       <td style="width:100%;padding-right:1rem;">
         <div class="dim-tbar-wrap"><div class="dim-tbar-fill" style="width:${s ?? 0}%;background:${color};"></div></div>
         ${d.summary ? `<div class="dim-tsummary">${d.summary}</div>` : ''}
+        ${d.why ? `<div class="dim-tsummary" style="margin-top:0.4rem;color:#9AA3B5;font-style:italic;">→ ${d.why}</div>` : ''}
       </td>
       <td class="dim-tscore" style="color:${color}">${s !== null ? s : '—'}</td>
     </tr>`;
