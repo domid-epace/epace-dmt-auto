@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DMT Express — Detail výsledku | ePACE</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --accent: #FAD232;
+  --accent-glow: rgba(250,210,50,0.20);
+  --grey-dark: #1E2433;
+  --grey-mid: #2a3040;
+  --grey-card: #222838;
+  --text-on-dark: #E8ECF4;
+  --text-muted: #9AA3B5;
+  --border-dark: rgba(255,255,255,0.10);
+  --tier-I:   #f87171;
+  --tier-II:  #fbbf24;
+  --tier-III: #4ade80;
+  --tier-IV:  #60a5fa;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--grey-dark);
+  color: var(--text-on-dark);
+  min-height: 100vh;
+}
+h1,h2,h3,h4 { font-family: 'Poppins', sans-serif; }
+
+.log-header {
+  background: rgba(30,36,51,0.97);
+  border-bottom: 1px solid var(--border-dark);
+  padding: 0 2rem;
+  height: 62px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 10;
+}
+.log-logo { font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 1.3rem; color: var(--text-on-dark); letter-spacing: -0.03em; }
+.log-logo span { color: var(--accent); }
+.log-badge {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  background: rgba(250,210,50,0.12); border: 1px solid rgba(250,210,50,0.3);
+  color: var(--accent); padding: 0.25rem 0.75rem; border-radius: 100px;
+}
+
+.log-container { max-width: 860px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+
+.log-breadcrumb {
+  font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem;
+}
+.log-breadcrumb a { color: var(--text-muted); text-decoration: none; }
+.log-breadcrumb a:hover { color: var(--accent); }
+
+/* Compact tier strip */
+.log-tier-strip {
+  display: flex; align-items: center; gap: 1.25rem;
+  background: var(--grey-card);
+  border: 1px solid var(--border-dark);
+  border-radius: 12px;
+  padding: 1.1rem 1.5rem;
+  margin-bottom: 1.75rem;
+}
+.log-tier-num {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.5rem; font-weight: 800;
+  color: var(--tier-color, var(--accent));
+  line-height: 1; flex-shrink: 0;
+}
+.log-tier-info { flex: 1; }
+.log-tier-label { font-family: 'Poppins', sans-serif; font-size: 1.1rem; font-weight: 700; }
+.log-tier-sub { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.2rem; }
+.log-tier-headline { font-size: 0.9rem; color: var(--text-on-dark); margin-top: 0.35rem; line-height: 1.5; }
+
+/* Section blocks */
+.log-section {
+  background: var(--grey-card);
+  border: 1px solid var(--border-dark);
+  border-radius: 12px;
+  padding: 1.4rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.log-section-label {
+  font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.log-section-label.yellow { color: var(--accent); }
+.log-section-label.blue   { color: #60a5fa; }
+.log-section-label.green  { color: #4ade80; }
+.log-section-label.red    { color: #f87171; }
+.log-section-label.grey   { color: var(--text-muted); }
+
+/* Reasoning block */
+.log-reasoning {
+  font-size: 0.92rem; color: var(--text-on-dark);
+  line-height: 1.75;
+  font-style: italic;
+  border-left: 3px solid rgba(250,210,50,0.4);
+  padding-left: 1rem;
+}
+
+/* Dimension table */
+.log-dim-table { width: 100%; border-collapse: collapse; }
+.log-dim-table th {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text-muted); padding: 0 0 0.6rem 0; text-align: left;
+}
+.log-dim-table th:last-child { text-align: right; }
+.log-dim-table td { padding: 0.7rem 0; border-top: 1px solid rgba(255,255,255,0.06); vertical-align: top; }
+.log-dim-table tr:first-child td { border-top: none; }
+.dim-tname { font-size: 0.85rem; font-weight: 600; color: var(--text-on-dark); padding-right: 1rem; white-space: nowrap; }
+.dim-tbar-wrap {
+  background: rgba(255,255,255,0.06); border-radius: 100px;
+  height: 6px; overflow: hidden; min-width: 120px;
+}
+.dim-tbar-fill { height: 100%; border-radius: 100px; }
+.dim-tscore { font-size: 0.82rem; font-weight: 700; text-align: right; padding-left: 0.75rem; white-space: nowrap; }
+.dim-tsummary { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; padding-top: 0.3rem; grid-column: 1 / -1; }
+
+/* Opportunities list */
+.log-opp-list { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+.log-opp-list li {
+  font-size: 0.9rem; color: var(--text-on-dark); line-height: 1.6;
+  padding-left: 1.2rem; position: relative;
+}
+.log-opp-list li::before {
+  content: '→'; position: absolute; left: 0;
+  color: #f87171; font-weight: 700;
+}
+
+/* Tech badges */
+.log-badges { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.log-badge-item {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border-dark);
+  border-radius: 5px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem; color: var(--text-muted);
+}
+
+/* Competitor block */
+.log-comp-item {
+  border: 1px solid var(--border-dark);
+  border-radius: 8px;
+  padding: 0.9rem 1.1rem;
+  margin-top: 0.75rem;
+}
+.log-comp-url { font-size: 0.82rem; font-weight: 600; color: var(--text-on-dark); margin-bottom: 0.5rem; }
+
+/* Raw JSON */
+.log-raw {
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 320px;
+  overflow-y: auto;
+  background: rgba(0,0,0,0.25);
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+details > summary {
+  cursor: pointer;
+  font-size: 0.8rem; color: var(--text-muted);
+  padding: 0.5rem 0;
+  user-select: none;
+}
+details > summary:hover { color: var(--accent); }
+
+/* Error */
+.error-state { text-align: center; padding: 5rem 2rem; }
+.error-state h2 { color: var(--text-on-dark); font-size: 1.4rem; margin-bottom: 1rem; }
+.error-state p  { color: var(--text-muted); margin-bottom: 2rem; }
+.btn-cta-large {
+  background: var(--accent); color: #1E2433;
+  font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 700;
+  padding: 0.8rem 1.8rem; border-radius: 8px; border: none; cursor: pointer;
+  text-decoration: none; white-space: nowrap; display: inline-block;
+}
+
+.log-footer {
+  margin-top: 3rem; padding-top: 1.5rem;
+  border-top: 1px solid var(--border-dark);
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 0.75rem;
+  font-size: 0.78rem; color: var(--text-muted);
+}
+.log-footer a { color: var(--text-muted); text-decoration: none; }
+.log-footer a:hover { color: var(--accent); }
+
+@media (max-width: 640px) {
+  .log-tier-strip { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .dim-tbar-wrap { min-width: 80px; }
+}
+</style>
+</head>
+<body>
+
+<header class="log-header">
+  <div class="log-logo">e<span>Pace</span> <span style="font-size:0.75rem;font-weight:500;color:var(--text-muted);letter-spacing:0.05em;margin-left:0.5rem;">DMT Express</span></div>
+  <div class="log-badge">Detail výsledku</div>
+</header>
+
+<div id="log-main" class="log-container" style="display:none;"></div>
+
+<div id="log-error" class="error-state" style="display:none;">
+  <h2>Výsledek nebyl nalezen</h2>
+  <p>Odkaz je neplatný nebo vypršel. Spusťte prosím test znovu.</p>
+  <a href="https://domid-epace.github.io/dashboards/dmt-landing-page.html#dmt-express" class="btn-cta-large">Zpět na test</a>
+</div>
+
+<div id="log-loading" style="text-align:center;padding:5rem 2rem;">
+  <div style="width:44px;height:44px;border:3px solid rgba(255,255,255,0.1);border-top-color:#FAD232;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 1.5rem;"></div>
+  <p style="color:#9AA3B5;">Načítám detail…</p>
+</div>
+
+<style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+
+<script>
+const TIER_CONFIG = {
+  'I':  { color: '#f87171', label: 'Digital Infant',  sub: 'Tier I — Úroveň 1 ze 4' },
+  'II': { color: '#fbbf24', label: 'Digital Aware',   sub: 'Tier II — Úroveň 2 ze 4' },
+  'III':{ color: '#4ade80', label: 'Digital Active',  sub: 'Tier III — Úroveň 3 ze 4' },
+  'IV': { color: '#60a5fa', label: 'Digital Mature',  sub: 'Tier IV — Úroveň 4 ze 4' },
+};
+
+const DIMENSION_LABELS = {
+  consent_capture:  'Sběr kontaktů',
+  email_automation: 'Email & automatizace',
+  personalization:  'Personalizace',
+  data_integration: 'Data & integrace',
+  measurement:      'Měření & KPI',
+};
+
+function dimColor(s) {
+  if (s >= 70) return '#4ade80';
+  if (s >= 45) return '#fbbf24';
+  return '#f87171';
+}
+
+function decodeResult() {
+  const params = new URLSearchParams(window.location.search);
+  const raw = params.get('r');
+  if (!raw) return null;
+  try {
+    return JSON.parse(decodeURIComponent(escape(atob(raw))));
+  } catch(e) { return null; }
+}
+
+function renderLog(data) {
+  const tier = (data.tier || 'II').trim().toUpperCase();
+  const cfg = TIER_CONFIG[tier] || TIER_CONFIG['II'];
+  const score = data.score_estimate;
+  const url = data.url_scanned || data.url || '';
+  const dashUrl = window.location.href.replace('log.html', 'dashboard.html');
+  const now = new Date().toLocaleDateString('cs-CZ', { day:'numeric', month:'long', year:'numeric' });
+
+  document.documentElement.style.setProperty('--tier-color', cfg.color);
+
+  // Dimensions table
+  const dims = data.dimensions || {};
+  const dimRows = Object.entries(DIMENSION_LABELS).map(([key, label]) => {
+    const d = dims[key] || {};
+    const s = typeof d.score === 'number' ? d.score : null;
+    const color = s !== null ? dimColor(s) : '#555';
+    return `<tr>
+      <td class="dim-tname">${label}</td>
+      <td style="width:100%;padding-right:1rem;">
+        <div class="dim-tbar-wrap"><div class="dim-tbar-fill" style="width:${s ?? 0}%;background:${color};"></div></div>
+        ${d.summary ? `<div class="dim-tsummary">${d.summary}</div>` : ''}
+      </td>
+      <td class="dim-tscore" style="color:${color}">${s !== null ? s : '—'}</td>
+    </tr>`;
+  }).join('');
+
+  // Opportunities
+  const opps = data.opportunities_cs || data.gaps_cs || [];
+  const oppsHTML = opps.length
+    ? `<ul class="log-opp-list">${opps.map(o => `<li>${o}</li>`).join('')}</ul>`
+    : '<p style="font-size:0.88rem;color:var(--text-muted);">Žádné příležitosti nebyly identifikovány.</p>';
+
+  // Tech stack
+  const tools = data.tech_detected || [];
+  const techHTML = tools.length
+    ? `<div class="log-badges">${tools.map(t => `<span class="log-badge-item">${t}</span>`).join('')}</div>`
+    : '<p style="font-size:0.88rem;color:var(--text-muted);">Žádné nástroje nebyly detekovány.</p>';
+
+  // Competitors
+  const comps = data.competitors || [];
+  const compsHTML = comps.length
+    ? comps.map(c => `
+        <div class="log-comp-item">
+          <div class="log-comp-url">${c.url}</div>
+          <div class="log-badges">
+            ${(c.tools || []).length
+              ? c.tools.map(t => `<span class="log-badge-item">${t}</span>`).join('')
+              : '<span style="font-size:0.8rem;color:var(--text-muted);">Žádné nástroje nebyly detekovány</span>'}
+          </div>
+        </div>`).join('')
+    : '<p style="font-size:0.88rem;color:var(--text-muted);">Žádná konkurence nebyla zadána.</p>';
+
+  // Strengths
+  const strengths = data.strengths_cs || [];
+  const strengthsHTML = strengths.length
+    ? `<ul class="log-opp-list" style="--bullet-color:#4ade80">${strengths.map(s => `<li style="padding-left:1.2rem"><span style="position:absolute;left:0;color:#4ade80;font-weight:700">→</span>${s}</li>`).join('')}</ul>`
+    : '';
+
+  const html = `
+    <!-- Breadcrumb -->
+    <div class="log-breadcrumb">
+      <a href="${dashUrl}">← Zpět na výsledek</a>
+      ${url ? ` · ${url}` : ''}
+      · ${now}
+    </div>
+
+    <!-- Compact tier strip -->
+    <div class="log-tier-strip" style="--tier-color:${cfg.color}">
+      <div class="log-tier-num">${tier}</div>
+      <div class="log-tier-info">
+        <div class="log-tier-label">${cfg.label}</div>
+        <div class="log-tier-sub">${cfg.sub}${score !== undefined ? ` · skóre ${score}/100` : ''}</div>
+        ${data.headline_cs ? `<div class="log-tier-headline">${data.headline_cs}</div>` : ''}
+      </div>
+    </div>
+
+    <!-- Reasoning -->
+    ${data.reasoning_en ? `
+    <div class="log-section">
+      <div class="log-section-label blue">Claude Reasoning (internal)</div>
+      <div class="log-reasoning">${data.reasoning_en}</div>
+    </div>` : ''}
+
+    <!-- Dimension scores -->
+    <div class="log-section">
+      <div class="log-section-label yellow">Hodnocení po oblastech</div>
+      <table class="log-dim-table">
+        <thead><tr>
+          <th>Oblast</th>
+          <th>Skóre & komentář</th>
+          <th style="text-align:right">Body</th>
+        </tr></thead>
+        <tbody>${dimRows}</tbody>
+      </table>
+    </div>
+
+    <!-- Strengths -->
+    ${strengths.length ? `
+    <div class="log-section">
+      <div class="log-section-label green">Silné stránky</div>
+      ${strengthsHTML}
+    </div>` : ''}
+
+    <!-- Opportunities -->
+    <div class="log-section">
+      <div class="log-section-label red">Příležitosti k růstu</div>
+      ${oppsHTML}
+    </div>
+
+    <!-- Next step -->
+    ${data.next_step_cs ? `
+    <div class="log-section">
+      <div class="log-section-label blue">Doporučený next step</div>
+      <p style="font-size:0.92rem;color:var(--text-on-dark);line-height:1.7;">${data.next_step_cs}</p>
+    </div>` : ''}
+
+    <!-- Tech stack -->
+    <div class="log-section">
+      <div class="log-section-label yellow">Detekované nástroje — ${url}</div>
+      ${techHTML}
+    </div>
+
+    <!-- Competitors -->
+    <div class="log-section">
+      <div class="log-section-label grey">Konkurence — tech stack</div>
+      ${compsHTML}
+    </div>
+
+    <!-- Raw JSON -->
+    <div class="log-section">
+      <details>
+        <summary>Raw JSON výsledku</summary>
+        <div class="log-raw">${JSON.stringify(data, null, 2).replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      </details>
+    </div>
+
+    <!-- Footer -->
+    <div class="log-footer">
+      <div>ePACE s.r.o. · <a href="https://epace.com">epace.com</a></div>
+      <div><a href="${dashUrl}">← Výsledek</a> · <a href="https://domid-epace.github.io/dashboards/dmt-landing-page.html#dmt-express">Spustit znovu</a></div>
+    </div>
+  `;
+
+  document.getElementById('log-main').innerHTML = html;
+  document.getElementById('log-loading').style.display = 'none';
+  document.getElementById('log-main').style.display = 'block';
+  document.title = `Tier ${tier} — Detail | DMT Express ePACE`;
+}
+
+(function() {
+  const data = decodeResult();
+  if (!data) {
+    document.getElementById('log-loading').style.display = 'none';
+    document.getElementById('log-error').style.display = 'block';
+  } else {
+    renderLog(data);
+  }
+})();
+</script>
+</body>
+</html>

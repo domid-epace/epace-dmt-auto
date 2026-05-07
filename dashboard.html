@@ -103,15 +103,6 @@ h1,h2,h3,h4 { font-family: 'Poppins', sans-serif; }
 .tier-desc {
   font-size: 0.95rem; color: var(--text-on-dark); line-height: 1.6;
 }
-.tier-score-pill {
-  display: inline-flex; align-items: center;
-  background: rgba(255,255,255,0.06); border: 1px solid var(--border-dark);
-  border-radius: 100px; padding: 0.25rem 0.85rem;
-  font-size: 0.8rem; font-weight: 600; color: var(--text-muted);
-  margin-top: 0.6rem;
-}
-.tier-score-pill strong { color: var(--tier-color, var(--accent)); margin-right: 0.3rem; }
-
 /* ── HEADLINE ── */
 .dash-headline {
   font-family: 'Poppins', sans-serif;
@@ -220,6 +211,20 @@ h1,h2,h3,h4 { font-family: 'Poppins', sans-serif; }
   color: var(--text-muted);
   line-height: 1.5;
   margin-top: -0.5rem;
+}
+
+/* ── COMPETITORS ── */
+.dash-competitors { margin-bottom: 1.75rem; }
+.comp-item {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border-dark);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-top: 0.75rem;
+}
+.comp-url {
+  font-size: 0.82rem; font-weight: 600;
+  color: var(--text-on-dark); margin-bottom: 0.6rem;
 }
 
 /* ── TIER SCALE BAR ── */
@@ -387,6 +392,8 @@ function renderDashboard(data) {
   const nextStep = data.next_step_cs || '';
   const headline = data.headline_cs || '';
   const dimensions = data.dimensions || null;
+  const competitors = data.competitors || [];
+  const logUrl = window.location.href.replace('dashboard.html', 'log.html');
   const now = new Date().toLocaleDateString('cs-CZ', { day:'numeric', month:'long', year:'numeric' });
 
   // Set tier CSS variables
@@ -429,6 +436,20 @@ function renderDashboard(data) {
       }).join('')}
     </div>` : '';
 
+  const competitorsHTML = competitors.length ? `
+    <div class="dash-competitors">
+      <div class="dash-card-label yellow">Konkurence — tech stack</div>
+      ${competitors.map(c => `
+        <div class="comp-item">
+          <div class="comp-url">${c.url}</div>
+          <div class="dash-tech-badges">
+            ${(c.tools || []).length
+              ? c.tools.map(t => `<span class="tech-badge">${t}</span>`).join('')
+              : '<span style="font-size:0.8rem;color:var(--text-muted);">Žádné nástroje nebyly detekovány</span>'}
+          </div>
+        </div>`).join('')}
+    </div>` : '';
+
   const html = `
     <!-- Top meta -->
     <div class="dash-top">
@@ -447,9 +468,8 @@ function renderDashboard(data) {
       <div class="tier-numeral">${tier}</div>
       <div class="tier-info">
         <div class="tier-label">${cfg.label}</div>
-        <div class="tier-sublabel">${cfg.sub} · skóre ${score}/100</div>
+        <div class="tier-sublabel">${cfg.sub}</div>
         <div class="tier-desc">${cfg.desc}</div>
-        <div class="tier-score-pill"><strong>${score}</strong>/ 100</div>
       </div>
     </div>
 
@@ -458,6 +478,9 @@ function renderDashboard(data) {
 
     <!-- Tech stack -->
     ${techHTML}
+
+    <!-- Competitors -->
+    ${competitorsHTML}
 
     <!-- Dimension scores -->
     ${dimHTML}
@@ -497,7 +520,7 @@ function renderDashboard(data) {
     <!-- Footer -->
     <div class="dash-footer">
       <div>ePACE s.r.o. · <a href="https://epace.com">epace.com</a> · <a href="mailto:info@epace.com">info@epace.com</a></div>
-      <div>Výsledek vygenerován automaticky nástrojem DMT Express · <a href="https://domid-epace.github.io/dashboards/dmt-landing-page.html#dmt-express">Spustit znovu</a></div>
+      <div><a href="${logUrl}">Detaily →</a> · Výsledek DMT Express · <a href="https://domid-epace.github.io/dashboards/dmt-landing-page.html#dmt-express">Spustit znovu</a></div>
     </div>
   `;
 
